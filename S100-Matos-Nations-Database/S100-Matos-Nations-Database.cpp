@@ -20,6 +20,9 @@ void queryDatabase(vector<string>& vcountry, vector<string>& vcapital,
 void makeDatabase(vector<string>& vcountry, vector<string>& vcapital,
                   vector<string>& vcurrency, vector<string>& vlanguage);
 
+void populateVector(string fileName, vector<string>& v);
+int  sequentialSearch(string key, vector<string> v);
+int  binarySearch(string key, vector<string> v);
 
 int main()
 {
@@ -36,7 +39,15 @@ int main()
 void makeDatabase(vector<string>& vcountry, vector<string>& vcapital, 
                   vector<string>& vcurrency, vector<string>& vlanguage)
 {
-    string fileName = "c:/temp/xcountry.txt";
+    populateVector("c:/temp/xcountry.txt", vcountry);
+    populateVector("c:/temp/xcapital.txt", vcapital);
+    populateVector("c:/temp/xlanguage.txt", vlanguage);
+    populateVector("c:/temp/xcurrency.txt", vcurrency);
+
+}
+
+void populateVector(string fileName, vector<string>& v)
+{
     ifstream infile(fileName);
     if (!infile)
     {
@@ -44,17 +55,64 @@ void makeDatabase(vector<string>& vcountry, vector<string>& vcapital,
         exit(1);
     }
     string strValue;
-    while ( getline(infile, strValue) )
+    while (getline(infile, strValue, '\n'))
     {
-        vcountry.push_back(strValue);
+        v.push_back(strValue);
     }
     infile.close();
-
-
 }
+
 
 void queryDatabase(vector<string>& vcountry, vector<string>& vcapital,
                    vector<string>& vcurrency, vector<string>& vlanguage)
 {
+    string strCountry;
+    do
+    {
+        cout << "Enter country [xxx to end]: ";
+        getline(cin, strCountry);
+        if (strCountry == "xxx") break;
 
+        //int pos = sequentialSearch(strCountry, vcountry);
+        int pos = binarySearch(strCountry, vcountry);
+
+        if (pos >= 0)
+        {
+            cout << "Capital city:        " << vcapital[pos] << endl;
+            cout << "Language(s):         " << vlanguage[pos] << endl;
+            cout << "Currency:            " << vcurrency[pos] << endl;
+        }
+        else
+        {
+            cout << "Country not found in the database" << endl;
+        }
+        cout << endl;
+
+    } while (true);
+}
+
+int sequentialSearch(string key, vector<string> v)
+{
+    for (int i = 0; i < v.size(); i++)
+    {
+        if (v[i] == key) return i;
+    }
+    return -1;          //data not found
+}
+
+int  binarySearch(string key, vector<string> v)
+{
+    int first = 0;
+    int last = v.size() - 1;
+    while (first <= last)
+    {
+        int mid = (first + last) / 2;
+        if (v[mid] == key) return mid;  //match found!
+
+        if (v[mid] < key)
+            first = mid + 1;        //explore right side
+        else
+            last = mid - 1;         //explore left side
+    }
+    return -1;
 }
